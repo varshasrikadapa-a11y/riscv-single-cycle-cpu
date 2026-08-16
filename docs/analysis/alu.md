@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document records pre-RTL predictions for the 32-bit combinational ALU in the educational RV32I single-cycle processor.
+This document records pre-RTL predictions and post-simulation observations for the 32-bit combinational ALU in the educational RV32I single-cycle processor.
 
 ## Assumptions
 
@@ -73,4 +73,10 @@ Minimum functional coverage should include:
 
 ## Prediction vs Measurement
 
-At this stage no RTL, simulation, synthesis, timing, or resource measurements exist. Those values will be added only after implementation and verification.
+### Functional simulation observation
+
+The supplied Vivado/XSim waveform shows the defined ALU control codes being exercised. The observed results match the expected vectors, including the SUB equality case, signed SLT cases, and invalid control behavior. The testbench `errors` signal remains 0 in the supplied waveform.
+
+### Measured limitations
+
+No synthesis timing, LUT, FF, carry-chain, or power measurements are claimed from this simulation. Those require Vivado synthesis/implementation and will be recorded separately.
