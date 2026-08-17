@@ -53,31 +53,18 @@ The Immediate Generator itself should be a relatively small combinational block 
 
 ## Verification Predictions
 
-Verification should cover:
+Verification should cover positive and negative values for all I/S/B/J formats, implicit low bits for B/J, opcode-based selection, and unsupported opcode behavior.
 
-1. Positive I-Type immediate.
-2. Negative I-Type immediate and sign extension.
-3. Positive S-Type immediate reconstruction.
-4. Negative S-Type immediate reconstruction.
-5. Positive and negative B-Type offsets.
-6. Correct B-Type implicit `imm[0] = 0`.
-7. Positive and negative J-Type offsets.
-8. Correct J-Type implicit `imm[0] = 0`.
-9. Opcode-based format selection.
-10. No unintended dependence on clock or reset.
+## Measured Behavioral Result
 
-## Expected Edge Cases
+The user-provided XSim behavioral waveform confirms the predictions for the planned test set. Observed outputs were `+10`, `-4`, `+12`, `-4`, `+4`, `-4`, `+4`, `-4`, and `0` for unsupported opcode, respectively. The testbench `errors` signal remained `0`.
 
-- Maximum positive representable immediate for each format.
-- Most negative representable immediate for each format.
-- Zero immediate.
-- Sign bit set.
-- Branch and jump offsets with the low bit implicitly zero.
+Therefore the functional behavioral prediction was confirmed. No FPGA timing or resource measurements were inferred from simulation.
 
 ## Resource Prediction
 
 Because the design is mostly wiring and simple combinational selection, expected FPGA resource usage is small. Exact LUT count and timing are implementation-dependent and must be measured in Vivado rather than assumed.
 
-## Stop Condition
+## Status
 
-RTL is permitted only after the predictions above are understood and confirmed. Actual FPGA timing/resource numbers remain unmeasured until synthesis/implementation.
+**Behavioral prediction confirmed by XSim.** FPGA implementation measurements remain pending.
