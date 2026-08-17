@@ -30,10 +30,35 @@ B-Type:
 J-Type:
 `sign_extend({instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0})`
 
-## Verification Method
+## Simulation Evidence
 
-The testbench will drive representative encodings and compare the DUT output against independently derived expected 32-bit signed immediates. Positive and negative values are required so that sign extension is explicitly tested. B-Type and J-Type tests must verify the implicit zero least-significant bit and the non-contiguous source fields.
+User-provided XSim behavioral simulation waveform was reviewed. The waveform shows the expected immediate sequence:
 
-## Status
+| Test | Observed immediate | Expected | Status |
+|---|---|---|---|
+| I-Type +10 | `0000000A` | `0000000A` | PASS |
+| I-Type -4 | `FFFFFFFC` | `FFFFFFFC` | PASS |
+| S-Type +12 | `0000000C` | `0000000C` | PASS |
+| S-Type -4 | `FFFFFFFC` | `FFFFFFFC` | PASS |
+| B-Type +4 | `00000004` | `00000004` | PASS |
+| B-Type -4 | `FFFFFFFC` | `FFFFFFFC` | PASS |
+| J-Type +4 | `00000004` | `00000004` | PASS |
+| J-Type -4 | `FFFFFFFC` | `FFFFFFFC` | PASS |
+| Unsupported opcode | `00000000` | `00000000` | PASS |
 
-RTL and testbench preparation complete. Simulation results are intentionally not marked PASS until an actual XSim run is performed and the waveform/output is reviewed.
+The waveform also shows `errors = 0` throughout the run, indicating no mismatches were reported by the testbench.
+
+## Signal-Level Interpretation
+
+- I-Type values are extracted from `instruction[31:20]` and sign-extended.
+- S-Type values are reconstructed from `instruction[31:25]` and `instruction[11:7]`.
+- B-Type values correctly reconstruct the non-contiguous fields and implicit `imm[0] = 0`.
+- J-Type values correctly reconstruct the non-contiguous fields and implicit `imm[0] = 0`.
+- Negative values preserve the sign through 32-bit sign extension.
+- Unsupported opcode behavior matches the defined zero default.
+
+## Result
+
+**PASS — functional behavioral verification completed for the planned test set.**
+
+This verification demonstrates functional correctness of the Immediate Generator for the tested representative values. It does not yet establish FPGA timing or resource utilization; those remain synthesis/implementation measurements for later stages.
