@@ -1,47 +1,31 @@
-# PC / Next-PC Analysis
+# PC / Next-PC Analysis — Measured vs Predicted
 
-## Predicted behavior
+## Prediction
 
-The PC is a 32-bit state register. It stores the byte address of the current 32-bit instruction. Normal sequential execution advances by 4 bytes.
+The PC is a 32-bit synchronous state register. The next-PC logic is combinational and selects `PC+4`, `PC+B_imm`, or `PC+J_imm`.
 
-## Candidate next addresses
+## Measurement
 
-- Sequential: `PC + 32'd4`
-- Branch target: `PC + B_imm`
-- JAL target: `PC + J_imm`
+XSim waveform confirms the predicted sequence:
 
-## Selection prediction
+`0 → 4 → 8 → 0x1C → 0x20 → 0x2C → 0x54 → 0x5C → 0x50`
 
-For the supported ISA, decoded JAL and branch controls are mutually exclusive. The defined defensive priority is:
+The waveform also shows `errors = 0`.
 
-1. `Jump` → JAL target
-2. `Branch && BranchTaken` → branch target
-3. Otherwise → sequential `PC + 4`
+## Comparison
 
-`BranchTaken` is derived from ALU `Zero`:
-- BEQ: `Zero == 1`
-- BNE: `Zero == 0`
+- Reset to zero: predicted and measured — PASS
+- Sequential +4: predicted and measured — PASS
+- Taken branch: predicted and measured — PASS
+- Not-taken branch: predicted and measured — PASS
+- JAL target: predicted and measured — PASS
+- Jump priority: predicted and measured — PASS
+- Negative branch offset: predicted and measured — PASS
 
-## Timing prediction
+## Timing interpretation
 
-PC is clocked state. Candidate addresses and the MUX are combinational; the selected `PC_next` is captured at the active clock edge. The PC path therefore contributes an adder and next-PC selection logic to the single-cycle timing path.
+The candidate next addresses and MUX are combinational. The selected address is captured into the PC at the active clock edge. This matches the single-cycle architectural model.
 
-## Reset assumption
+## FPGA measurement status
 
-Initial implementation uses synchronous reset and initializes PC to `0x00000000`.
-
-## Resource prediction
-
-Expected logic consists primarily of 32-bit adders and a next-PC multiplexer. Actual LUT, FF, and timing results are FPGA/tool dependent and must be measured in Vivado.
-
-## Verification priorities
-
-1. Reset establishes PC=0.
-2. Normal instruction gives PC+4.
-3. Taken BEQ selects PC+B_imm.
-4. Not-taken BEQ selects PC+4.
-5. Taken BNE selects PC+B_imm.
-6. Not-taken BNE selects PC+4.
-7. JAL selects PC+J_imm.
-8. JAL return address is PC+4 in the separate write-back path.
-9. Defensive priority is deterministic if controls are accidentally asserted together.
+No post-synthesis/post-implementation timing or resource claim is made here. Those measurements remain for the Vivado FPGA phase.
