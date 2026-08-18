@@ -1,4 +1,4 @@
-# Register File Analysis
+# Register File Analysis — Measured vs Predicted
 
 ## Predicted Behavior
 
@@ -11,28 +11,16 @@ The register file is a 32 × 32-bit storage structure with two combinational rea
 - A write to x0 must have no architectural effect.
 - Reset is synchronous in the initial implementation; all registers are predicted to become zero on the active edge while reset is asserted.
 
-## Functional Predictions
+## Measured Functional Behavior
 
-- Reading x0 always returns zero.
-- Reading any x1-x31 returns the most recently committed value.
-- Two different source registers can be read simultaneously.
-- Both read ports may independently select x0.
-- Writing one register must not alter unrelated registers.
+Vivado XSim confirmed the planned functional behavior with `errors = 0`.
+
+Observed results matched predictions for reset, normal writes, simultaneous two-port reads, `RegWrite=0`, x0 write protection, x0 reads, and combinational read selection.
 
 ## Resource Expectations
 
 The logical storage requirement is 32 × 32 = 1024 bits, excluding implementation overhead. Actual LUT/FF/BRAM mapping is FPGA/tool dependent and must be measured in Vivado rather than assumed.
 
-## Verification Priorities
+## Timing Status
 
-1. Reset clears all registers.
-2. Read x0 returns zero.
-3. Write x0 is ignored.
-4. Normal write/readback works.
-5. Two read ports return correct values simultaneously.
-6. RegWrite=0 prevents writes.
-7. Unrelated registers remain unchanged.
-
-## Timing Assumption
-
-This design intentionally uses combinational register reads to support the strict single-cycle datapath. No hidden pipeline stage or extra cycle is introduced.
+No FPGA synthesis or implementation timing measurements have been performed yet. Those measurements remain for the FPGA implementation phase.
