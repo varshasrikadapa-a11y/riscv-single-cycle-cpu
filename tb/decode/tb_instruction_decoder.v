@@ -47,18 +47,23 @@ module tb_instruction_decoder;
         check_fields(7'b0110011,5'b00101,3'b000,5'b00001,5'b00010,7'b0000000);
 
         // ADDI x5,x1,10 = 00000000101000001000001010010011
+        // [24:20] is imm[4:0], not rs2. The decoder still exposes
+        // the raw [24:20] slice on its rs2 output for uniform field extraction.
         instruction = 32'b00000000101000001000001010010011;
-        check_fields(7'b0010011,5'b00101,3'b000,5'b00001,5'b00010,7'b0000000);
+        check_fields(7'b0010011,5'b00101,3'b000,5'b00001,5'b01010,7'b0000000);
 
         // SW x5,8(x1) = 00000000010100001010010000100011
+        // [11:7] is imm[4:0], while [24:20] is rs2.
         instruction = 32'b00000000010100001010010000100011;
         check_fields(7'b0100011,5'b01000,3'b010,5'b00001,5'b00101,7'b0000000);
 
         // BEQ x1,x2,20 = 00000100001000001000101001100011
+        // [11:7] and [31:25] are immediate fragments, not rd/funct7.
         instruction = 32'b00000100001000001000101001100011;
         check_fields(7'b1100011,5'b10100,3'b000,5'b00001,5'b00010,7'b0000010);
 
         // JAL x5,20 = 00000010100000000000001011101111
+        // The raw [24:20] slice is part of the J-type immediate, not rs2.
         instruction = 32'b00000010100000000000001011101111;
         check_fields(7'b1101111,5'b00101,3'b000,5'b00000,5'b00101,7'b0000000);
 
