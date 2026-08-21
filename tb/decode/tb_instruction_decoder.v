@@ -62,10 +62,10 @@ module tb_instruction_decoder;
         instruction = 32'b00000100001000001000101001100011;
         check_fields(7'b1100011,5'b10100,3'b000,5'b00001,5'b00010,7'b0000010);
 
-        // JAL x5,20 = 00000010100000000000001011101111
-        // The raw [24:20] slice is part of the J-type immediate, not rs2.
-        instruction = 32'b00000010100000000000001011101111;
-        check_fields(7'b1101111,5'b00101,3'b000,5'b00000,5'b00101,7'b0000000);
+        // JAL x5,20 = 00000001010000000000001011101111
+        // [24:20] is imm[4:0] of the J-type immediate, not rs2.
+        instruction = 32'b00000001010000000000001011101111;
+        check_fields(7'b1101111,5'b00101,3'b000,5'b00000,5'b10100,7'b0000000);
 
         $display("PASS: instruction decoder field extraction tests");
         $finish;
