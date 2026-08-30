@@ -33,7 +33,7 @@ module tb_riscv_cpu;
 
     always #5 clk = ~clk;
 
-    // Word-addressed behavioral instruction memory for simulation.
+    // Word-addressed behavioral instruction memory.
     always @(*) begin
         imem_rdata = imem[imem_addr[7:2]];
     end
@@ -57,25 +57,40 @@ module tb_riscv_cpu;
         reset = 1'b1;
         dmem_rdata = 32'b0;
 
-        // Clear memories.
         for (integer i = 0; i < 64; i = i + 1)
             imem[i] = 32'b0;
         for (integer j = 0; j < 256; j = j + 1)
             dmem[j] = 32'b0;
 
-        // Initial test program will be added after checking integration compile.
-        // This first testbench is intentionally used to validate the top-level
-        // module interfaces and memory timing assumptions.
+        // Three-instruction CPU integration test:
+        // ADDI x1, x0, 10  -> x1 = 10
+        // ADDI x2, x0, 20  -> x2 = 20
+        // ADD  x3, x1, x2  -> x3 = 30
+        imem[0] = 32'h00A00093;
+        imem[1] = 32'h01400113;
+        imem[2] = 32'h002081B3;
 
         #12;
         reset = 1'b0;
 
-        #100;
+        #40;
+        $display("FINAL: x1=%0d x2=%0d x3=%0d", dut.registers.regs[1], dut.registers.regs[2], dut.registers.regs[3]);
+
+        if (dut.registers.regs[1] !== 32'd10)
+            $display("FAIL: x1 expected 10");
+        else if (dut.registers.regs[2] !== 32'd20)
+            $display("FAIL: x2 expected 20");
+        else if (dut.registers.regs[3] !== 32'd30)
+            $display("FAIL: x3 expected 30");
+        else
+            $display("PASS: ADDI/ADDI/ADD integration test");
+
+        #10;
         $finish;
     end
 
     initial begin
-        $monitor("t=%0t PC=%h INSTR=%h ALU=%h ZERO=%b BRANCH=%b TAKEN=%b JUMP=%b WB=%h DMEM_A=%h DMEM_W=%b DMEM_R=%b", 
+        $monitor("t=%0t PC=%h INSTR=%h ALU=%h ZERO=%b BRANCH=%b TAKEN=%b JUMP=%b WB=%h DMEM_A=%h DMEM_W=%b DMEM_R=%b",
                  $time,
                  dut.pc,
                  imem_rdata,
