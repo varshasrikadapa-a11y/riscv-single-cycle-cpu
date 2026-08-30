@@ -74,13 +74,13 @@ module tb_riscv_cpu;
         reset = 1'b0;
 
         #40;
-        $display("FINAL: x1=%0d x2=%0d x3=%0d", dut.registers.regs[1], dut.registers.regs[2], dut.registers.regs[3]);
+        $display("FINAL: x1=%0d x2=%0d x3=%0d", dut.registers.registers[1], dut.registers.registers[2], dut.registers.registers[3]);
 
-        if (dut.registers.regs[1] !== 32'd10)
+        if (dut.registers.registers[1] !== 32'd10)
             $display("FAIL: x1 expected 10");
-        else if (dut.registers.regs[2] !== 32'd20)
+        else if (dut.registers.registers[2] !== 32'd20)
             $display("FAIL: x2 expected 20");
-        else if (dut.registers.regs[3] !== 32'd30)
+        else if (dut.registers.registers[3] !== 32'd30)
             $display("FAIL: x3 expected 30");
         else
             $display("PASS: ADDI/ADDI/ADD integration test");
