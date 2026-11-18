@@ -14,13 +14,13 @@
 - [x] Basys-3 top-level wrapper with behavioral instruction/data memories.
 - [x] Debug observation ports: PC and ALU result.
 - [x] SW0-controlled LED output: PC low byte or ALU-result low byte.
-- [x] Timing-related RTL optimizations in the current GitHub CPU RTL: direct operand branch comparison and dedicated effective-address expression.
-- [x] Write-back selection prioritizes JAL (PC+4), LW (memory result), then ALU result.
-- [x] Bitstream generated and FPGA programmed; user reports board observation.
+- [x] Timing optimizations in the committed CPU RTL: direct register-operand branch comparison and dedicated effective-address calculation for LW/SW.
+- [x] Write-back selection: JAL selects PC+4, LW selects data-memory result, otherwise ALU result.
+- [x] Bitstream generated and FPGA programmed; user reports observing the design on the Basys-3 board.
 
-## Timing closure (final user-reported implementation)
+## Final timing closure — user-reported implementation
 
-The final Vivado Design Timing Summary screenshot supplied by the user reported:
+The final Vivado Design Timing Summary screenshot reported:
 
 | Metric | Value |
 |---|---:|
@@ -33,24 +33,27 @@ The final Vivado Design Timing Summary screenshot supplied by the user reported:
 | Hold failing endpoints | 0 |
 | Timing constraints | Met |
 
-The setup margin is only 11 ps, so this implementation passes the reported timing run but has very little margin. This is screenshot evidence, not an independent rerun in this environment.
+This meets the specified 10 ns setup constraint, but the positive setup margin is only 11 ps. Treat this as a narrowly passing implementation. These are screenshot-reported results, not an independent run performed here.
 
-## FPGA demo
+## FPGA demonstration
 
-- Press btnC to synchronously reset the CPU and restart PC at 0.
-- SW0=0: LEDs show PC[7:0], allowing the program's address progression to be observed.
-- SW0=1: LEDs show ALU result[7:0] for the current instruction.
-- The test program is preloaded in instruction memory; the switches do not select instructions.
-- After the test program, a JAL x0,0 instruction parks the PC at byte address 148 (0x94). PC mode therefore holds the low byte of 0x94 on the LEDs.
-- ALU mode may show zero at the terminal self-loop because the parked JAL's ALU result can be zero; the LEDs are a live debug display, not a dedicated result register.
+- btnC: synchronous active-high reset; press to restart the PC at 0.
+- SW0=0: LEDs LD7–LD0 display `debug_pc[7:0]`, so the program address progression is visible.
+- SW0=1: LEDs display `debug_alu_result[7:0]`, the current instruction's ALU result—not a saved final result.
+- Instructions are preloaded into instruction memory in RTL; switches do not enter instruction data.
+- Program exercises arithmetic/logical/immediate operations, SW/LW, BEQ/BNE, JAL, SLT, and x0 protection.
+- At the end, `JAL x0,0` parks the PC at byte address 148 (0x94). In PC display mode, the low byte therefore remains 0x94 (LD7–LD0 = 10010100) after the program reaches the loop.
+- In ALU display mode, the terminal self-loop may show zero because the live ALU result of the parking instruction can be zero. This is not a stored-result display.
 
-## Source synchronization
+See [Basys-3 demonstration guide](FPGA_DEMO.md) for the test sequence and LED interpretation.
 
-The repository has the CPU RTL, Basys-3 wrapper, testbench and supporting docs. The XDC was added under `constraints/basys3_top.xdc`. Before declaring all local source files synchronized, compare the laptop Vivado source files with GitHub: a previously supplied RTL bundle includes an older CPU version and should not replace the current optimization-bearing RTL.
+## Git synchronization note
+
+The GitHub `main` branch contains the timing-optimized CPU RTL, Basys-3 wrapper, XDC, testbench, and this documentation. Because the Vivado project is local, the final source synchronization still needs a file-by-file comparison against the laptop's active Vivado sources. Do not overwrite the current optimized CPU RTL with an older bundle.
 
 ## Remaining work
 
-1. Compare the complete Vivado source set with GitHub and confirm the exact source snapshot used for the passing implementation.
-2. Capture final board photos/video and waveform screenshot for project evidence.
-3. If a persistent non-zero ALU LED demonstration is needed, use a dedicated test-program/display hold strategy (not an architectural change to the CPU).
-4. Complete project review and prepare instruction-by-instruction viva explanation.
+1. Compare the complete Vivado source set against the GitHub `main` snapshot.
+2. Save final FPGA photos/video and the timing summary as project evidence.
+3. If a persistent non-zero ALU result is desired for the demo, make a separate display/test-program enhancement without changing CPU architecture, then re-verify timing.
+4. Complete design review and prepare instruction-by-instruction viva explanation.
