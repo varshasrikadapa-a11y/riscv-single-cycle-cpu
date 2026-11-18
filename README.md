@@ -31,18 +31,22 @@ This behavioral memory model permits same-cycle LW in this educational single-cy
 - Target: Digilent Basys-3, Artix-7 `xc7a35tcpg236-1`
 - Clock: 100 MHz (10 ns constraint)
 - SW0=0: LEDs show PC[7:0]
-- SW0=1: LEDs show ALU result[7:0]
+- SW0=1: LEDs show live ALU result[7:0]
 - btnC: synchronous CPU reset
 - Instruction/data memories are initialized in RTL with a test program.
+- Program tests arithmetic, logical, immediate, LW/SW, BEQ/BNE, JAL, SLT, and x0 behavior. It ends in a self-loop at byte address 148 (0x94).
 
-The program tests arithmetic, logical, immediate, LW/SW, BEQ/BNE, JAL, SLT and x0 behavior. It ends in a self-loop at byte address 148 (0x94).
+See [FPGA demo guide](docs/FPGA_DEMO.md) for programming steps and expected LED behavior.
 
 ## Current status
-- CPU datapath, testbench, Basys-3 wrapper and XDC present.
+- CPU RTL and Basys-3 wrapper are committed.
 - Behavioral waveform captured.
-- Bitstream generated and FPGA programmed; user observed board behavior.
-- Final user-reported Vivado timing summary: setup WNS +0.011 ns, TNS 0, 0 failing setup endpoints; hold WHS +0.027 ns, 0 failing hold endpoints. Timing constraints reported met. Margin is tight.
-- See `docs/PROJECT_PROGRESS.md` and `docs/analysis/timing_closure.md`.
+- Bitstream generated and board programmed; user reports board observation.
+- Final user-reported timing summary: setup WNS +0.011 ns, TNS 0, 0 failing setup endpoints; hold WHS +0.027 ns, 0 failing hold endpoints. Constraints reported met; margin is very tight.
+- See [project progress](docs/PROJECT_PROGRESS.md) and [timing closure report](docs/analysis/timing_closure.md).
+
+## Next phase
+Synchronize every source file from the active Vivado project to GitHub, capture demonstration evidence, and complete the design review/viva preparation. Do not make timing-sensitive RTL or XDC changes without rerunning implementation timing.
 
 ## Structure
 ```
